@@ -88,7 +88,7 @@ FOUR = SUCC(THREE)
 
 PLUS = n => m => m(SUCC)(n)
 
-MINUS = n => m => m(PRED)(n)
+MINUS = n => m => m(PRED)(n) // actually "monus"
 
 MULT = n => m => m(PLUS(n))(ZERO)
 
@@ -281,7 +281,13 @@ FIRST = p => p(x => y => x)
 
 SECOND = p => p(x => y => y)
 
-// implement 3-tuples and the third projection
+// n-ary tuples
+
+TRIPLE = x => y => z => p => p(x)(y)(z)
+
+THIRD = p => p(x => y => z => z) // FIRST and SECOND will not work for this
+
+// implement 4-tuples and the fourth projection
 
 // lists
 
@@ -398,7 +404,7 @@ APPEND = FIX(r => xs => ys =>
     (ys)
     (x => LIST_ELEMENT(HEAD(xs))(r(TAIL(xs))(ys))(x)))
 
-REVERSE = xs => (FIX(r => xs => a =>
+REVERSE = xs => (FIX(r => xs => a => // implicit helper function
   IF_THEN_ELSE(IS_EMPTY(xs))
     (a)
     (x => (r(TAIL(xs))(LIST_ELEMENT(HEAD(xs))(a)))(x))))
@@ -429,8 +435,8 @@ ZIP_WITH = FIX(r => f => xs => ys =>
 
 LIST = LIST_ELEMENT(ONE)(LIST_ELEMENT(TWO)(LIST_ELEMENT(THREE)(EMPTY_LIST)))
 
-toArray(ZIP(LIST)(LIST)).map(x => toPairInt(x)) // ~= [(1,1),(2,2),(3,3)]
-toArrayInt(ZIP_WITH(PLUS)(LIST)(LIST))          // =  [2,4,6]
+toArray(ZIP(LIST)(LIST)).map(x => printPair(toPairInt(x))) // = [(1,1),(2,2),(3,3)]
+toArrayInt(ZIP_WITH(PLUS)(LIST)(LIST))                     // = [2,4,6]
 
 */
 
@@ -639,6 +645,8 @@ toPair = p => {
 toPairInt = p => {
   return {fst: (toInt(FIRST(p))), snd: (toInt(SECOND(p)))}
 }
+
+printPair = p => `(${p.fst},${p.snd})`
 
 toString = str => toArrayInt(str).map(n => String.fromCharCode(n)).join("")
 
