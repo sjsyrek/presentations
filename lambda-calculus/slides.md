@@ -3,11 +3,11 @@ build-lists: true
 autoscale: true
 
 # [fit] `github.com/sjsyrek/presentations/lambda-calculus`
-1. Vist the code repo at the above link
-1. Download or clone the repo
-1. Open `lambda.html` and a browser console
-1. Alternatively, you can copy and paste the code from `javascript/lambda.js` directly into the console
-1. Confirm that all tests have passed
+1. Visit the code repo at the above link.
+1. Download or clone the repo.
+1. Open `lambda.html` and a browser console.
+1. Alternatively, you can copy and paste the code from `javascript/lambda.js` directly into the console.
+1. Confirm that all tests have passed.
 
 ---
 
