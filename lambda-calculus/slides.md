@@ -54,9 +54,12 @@ _η-conversion_
 
 # identity combinator
 
-- `id ≡ (λx. x)`
-- `id = \x -> x`
-- `id = x => x`
+- `id ≡ λx. x`
+- `\x -> x`
+- `x => x`
+- `lambda x: x`
+- `-> x { x }`
+- `|x| { x };`
 
 ---
 
