@@ -1,6 +1,21 @@
 // Lambda Calculus for People Who Can't Be Bothered to Learn it
 // Steven Syrek
 
+/* operations
+
+ɑ-substitution
+(x => x)(1) === (y => y)(1)
+
+β-reduction
+(x => x)(y => y)(1) === (y => y)(1)
+(y => y)(1) === 1
+
+η-conversion
+f = x => x
+(x => f(x))(1) === f(1)
+
+*/
+
 // identity combinator
 
 ID = x => x
@@ -11,6 +26,13 @@ TRUE = x => y => x
 
 FALSE = x => y => y
 
+/*
+
+TRUE("first")("second") === "first"
+FALSE("first")("second") === "second"
+
+*/
+
 // boolean combinators
 
 AND = x => y => x(y)(FALSE)
@@ -19,11 +41,24 @@ OR = x => y => x(TRUE)(y)
 
 NOT = x => x(FALSE)(TRUE)
 
+/*
+
+AND(TRUE)(TRUE) === TRUE
+AND(FALSE)(TRUE) === FALSE
+AND(TRUE)(FALSE) === FALSE
+AND(FALSE)(FALSE) === FALSE
+
+*/
+
 // implement XOR
 
 // branching
 
 IF_THEN_ELSE = p => x => y => p(x)(y)
+
+IF_THEN_ELSE = p => x => p(x)
+
+IF_THEN_ELSE = p => p
 
 IF_THEN_ELSE = ID
 
@@ -43,6 +78,10 @@ SUCC = n => f => x => f(n(f)(x))
 
 PRED = n => n(p => z => z(SUCC(p(TRUE)))(p(TRUE)))(z => z(ZERO)(ZERO))(FALSE)
 
+SUCC_PAIR = p => PAIR(SECOND(p))(SUCC(SECOND(p)))
+
+PRED = n => FIRST(n(SUCC_PAIR)(PAIR(ZERO)(ZERO)))
+
 FOUR = SUCC(THREE)
 
 // basic arithmetic
@@ -56,6 +95,73 @@ MULT = n => m => m(PLUS(n))(ZERO)
 EXP = n => m => m(n)
 
 FIVE = PLUS(TWO)(THREE)
+
+/* reduction steps for PLUS(ONE)(TWO)
+
+PLUS(ONE)(TWO)
+(n => m => m(SUCC)(n))(ONE)(TWO)
+(TWO)(SUCC)(ONE)
+(f => x => f(f(x)))(SUCC)(ONE)
+(x => SUCC(SUCC(x)))(ONE)
+SUCC(SUCC(ONE))
+SUCC((n => f => x => f(n(f)(x)))(ONE))
+SUCC((f => x => f(ONE(f)(x))))
+SUCC((f => x => f((f => x => f(x))(f)(x))))
+SUCC((f => x => f((x => f(x))(x))))
+SUCC((f => x => f(f(x))))
+SUCC(TWO)
+(n => f => x => f(n(f)(x)))(TWO)
+f => x => f(TWO(f)(x))
+f => x => f((f => x => f(f(x)))(f)(x))
+f => x => f((x => f(f(x)))(x))
+f => x => f(f(f(x)))
+THREE
+
+*/
+
+/* reduction steps for PRED(TWO)
+
+PRED(TWO)
+(n => FIRST(n(SUCC_PAIR)(PAIR(ZERO)(ZERO))))(TWO)
+FIRST(TWO(SUCC_PAIR)(PAIR(ZERO)(ZERO)))
+FIRST(TWO(SUCC_PAIR)((x => y => z => z(x)(y))(ZERO)(ZERO)))
+FIRST(TWO(SUCC_PAIR)((y => z => z(ZERO)(y))(ZERO)))
+FIRST(TWO(SUCC_PAIR)(z => z(ZERO)(ZERO)))
+FIRST(TWO(p => PAIR(SECOND(p))(SUCC(SECOND(p))))(z => z(ZERO)(ZERO)))
+FIRST(TWO(PAIR(SECOND(z => z(ZERO)(ZERO)))(SUCC(SECOND((z => z(ZERO)(ZERO)))))))
+FIRST(TWO(PAIR(SECOND(z => z(ZERO)(ZERO)))(SUCC((p => p(x => y => y))((z => z(ZERO)(ZERO)))))))
+FIRST(TWO(PAIR(SECOND(z => z(ZERO)(ZERO)))(SUCC((z => z(ZERO)(ZERO))(x => y => y)))))
+FIRST(TWO(PAIR(SECOND(z => z(ZERO)(ZERO)))(SUCC((x => y => y)(ZERO)(ZERO)))))
+FIRST(TWO(PAIR(SECOND(z => z(ZERO)(ZERO)))(SUCC((y => y)(ZERO)))))
+FIRST(TWO(PAIR(SECOND(z => z(ZERO)(ZERO)))(SUCC(ZERO))))
+FIRST(TWO(PAIR(SECOND(z => z(ZERO)(ZERO)))((n => f => x => f(n(f)(x)))(ZERO))))
+FIRST(TWO(PAIR(SECOND(z => z(ZERO)(ZERO)))(f => x => f(ZERO(f)(x)))))
+FIRST(TWO(PAIR(SECOND(z => z(ZERO)(ZERO)))(f => x => f((f => x => x)(f)(x)))))
+FIRST(TWO(PAIR(SECOND(z => z(ZERO)(ZERO)))(f => x => f((x => x)(x)))))
+FIRST(TWO(PAIR(SECOND(z => z(ZERO)(ZERO)))(f => x => f(x))))
+FIRST(TWO(PAIR(SECOND(z => z(ZERO)(ZERO)))(ONE)))
+FIRST(TWO(PAIR((p => p(x => y => y))(z => z(ZERO)(ZERO)))(ONE)))
+FIRST(TWO(PAIR(((z => z(ZERO)(ZERO))(x => y => y)))(ONE)))
+FIRST(TWO(PAIR(((x => y => y(ZERO)(ZERO))))(ONE)))
+FIRST(TWO(PAIR(y => y(ZERO))(ONE)))
+FIRST(TWO(PAIR(ZERO)(ONE)))
+FIRST(TWO((x => y => z => z(x)(y))(ZERO)(ONE)))
+FIRST(TWO((y => z => z(ZERO)(y))(ONE)))
+FIRST(TWO(z => z(ZERO)(ONE)))
+FIRST((f => x => f(f(x)))(z => z(ZERO)(ONE)))
+FIRST(x => (z => z(ZERO)(ONE))((z => z(ZERO)(ONE))(x)))
+FIRST(x => (((z => z(ZERO)(ONE))(x))(ZERO)(ONE)))
+FIRST(x => ((x(ZERO)(ONE))(ZERO)(ONE)))
+(p => p(x => y => x))(x => ((x(ZERO)(ONE))(ZERO)(ONE)))
+((x => ((x(ZERO)(ONE))(ZERO)(ONE)))(x => y => x))
+((x => y => x)(ZERO)(ONE))(ZERO)(ONE)
+((y => ZERO)(ONE))(ZERO)(ONE)
+ZERO(ZERO)(ONE)
+(f => x => x)(ZERO)(ONE)
+(x => x)(ONE)
+ONE
+
+*/
 
 // implement SIX through TEN using any combination of the above functions
 
@@ -86,6 +192,8 @@ GREATER_THAN = n => m => AND(GREATER_THAN_OR_EQUAL(n)(m))
 
 COMPOSE = f => g => x => f(g(x))
 
+NOT_ZERO = COMPOSE(NOT)(IS_ZERO)
+
 // recursion
 
 FIX = f => (x => f(y => x(x)(y)))(x => f(y => x(x)(y)))
@@ -102,7 +210,68 @@ DIV = FIX(r => n => m =>
     (x => SUCC(r(MINUS(n)(m))(m))(x))
     (ZERO))
 
-// implement a function that, given a number n, returns true if n is even and false otherwise (HINT: write helper functions for EVEN and ODD
+// implement a function that, given a number n, returns true if n is even and false otherwise
+// (HINT: write helper functions for EVEN and ODD
+
+// factorial
+
+F = f => n => IS_ZERO(n)(ONE)(x => MULT(n)(f(PRED(n)))(x))
+
+FACT = FIX(F)
+
+FACT = FIX(r => n =>
+  IS_ZERO(n)
+    (ONE)
+    (x => MULT(n)(r(PRED(n)))(x)))
+
+/* reduction steps for FACT(TWO)
+
+FACT(TWO)
+FIX(F)(TWO)
+(Y => (x => Y(y => x(x)(y)))(x => Y(y => x(x)(y))))(F)(TWO)
+(x => F(y => x(x)(y)))(x => F(y => x(x)(y)))(TWO)
+F(y => (x => F(y => x(x)(y)))(x => F(y => x(x)(y)))(y))(TWO)
+F(FIX(F))(TWO)
+(f => n => IS_ZERO(n)(ONE)(x => MULT(n)(f(PRED(n)))(x)))(FIX(F))(TWO)
+(n => IS_ZERO(n)(ONE)(x => MULT(n)(FIX(F)(PRED(n)))(x)))(TWO)
+IS_ZERO(TWO)(ONE)(x => MULT(TWO)(FIX(F)(PRED(TWO)))(x))
+x => MULT(TWO)(FIX(F)(PRED(TWO)))(x)
+x => MULT(TWO)(FIX(F)(ONE))(x)
+x => MULT(TWO)(FACT(ONE))(x)
+x => MULT(TWO)(ONE)(x)
+MULT(TWO)(ONE)
+TWO
+
+*/
+
+FACT_EXP = (f => (x => f(y => x(x)(y)))(x => f(y => x(x)(y))))(f => n => (n => n(x => x => y => y)(x => y => x))(n)(f => x => f(x))(x => (n => m => m((n => m => m(n => f => x => f(n(f)(x)))(n))(n))(f => x => x))(n)(f((n => n(p => z => z((n => f => x => f(n(f)(x)))(p(x => y => x)))(p(x => y => x)))(z => z(f => x => x)(f => x => x))(x => y => y))(n)))(x)))
+
+/* How to implement recursive lambda functions in a strict language
+
+1. Write the function as you normally would without a fixpoint combinator:
+
+FACT = n =>
+  IS_ZERO(n)
+    (ONE)
+    (MULT(n)(FACT(PRED(n))))
+
+2. Wrap the whole thing in FIX, add a parameter to the front of the definition, and replace all recursive function calls with that parameter:
+
+FACT = FIX(r => n =>
+  IS_ZERO(n)
+    (ONE)
+    (MULT(n)(r(PRED(n)))))
+
+3. Wrap the recursive branch of your function in a dummy closure by adding a parameter to the front of that branch and applying the last function in that branch to the same parameter:
+
+FACT = FIX(r => n =>
+  IS_ZERO(n)
+    (ONE)
+    (x => MULT(n)(r(PRED(n)))(x)))
+
+*/
+
+// implement fibonacci
 
 // pairs
 
@@ -135,124 +304,42 @@ FOLD = FIX(r => f => z => xs =>
 
 MAP = f => FOLD(x => xs => LIST_ELEMENT(f(x))(xs))(EMPTY_LIST)
 
+/* Haskell map
+
+map f xs = foldr (\x xs -> f x : xs) [] xs
+
+map f = foldr (\x xs -> f x : xs) []
+
+map          :: (a -> b) -> [a] -> [b]
+map _ []     =  []
+map f (x:xs) =  f x : map f xs
+
+MAP = FIX(r => f => xs =>
+  IF_THEN_ELSE(IS_EMPTY(xs))
+    (EMPTY_LIST)
+    (x => LIST_ELEMENT(f(HEAD(xs)))(r(f)(TAIL(xs)))(x)))
+
+map f = foldr ((:) . f) []
+
+MAP = f => FOLD(COMPOSE(LIST_ELEMENT)(f))(EMPTY_LIST)
+
+*/
+
 FILTER = p => FOLD(x => xs =>
   IF_THEN_ELSE(p(x))
     (LIST_ELEMENT(x)(xs))
     (xs))
   (EMPTY_LIST)
 
-// implement AND_FOLD and OR_FOLD
+/*
 
-// other list functions
+toInt(FOLD(PLUS)(ZERO)(LIST))    // = 6
+toArrayInt(MAP(PLUS(ONE))(LIST)) // = [2,3,4]
+toArrayInt(FILTER(EVEN)(LIST))   // = [2]
 
-RANGE = FIX(r => m => n =>
-  IF_THEN_ELSE(LESS_THAN_OR_EQUAL(m)(n))
-    (x => LIST_ELEMENT(m)(r(SUCC(m))(n))(x))
-    (EMPTY_LIST))
+*/
 
-INDEX = FIX(r => xs => n =>
-  IF_THEN_ELSE(IS_ZERO(n))
-    (HEAD(xs))
-    (x => r(TAIL(xs))(PRED(n))(x)))
-
-PUSH = x => xs => FOLD(LIST_ELEMENT)(LIST_ELEMENT(x)(EMPTY_LIST))(xs)
-
-APPEND = FIX(r => xs => ys =>
-  IF_THEN_ELSE(IS_EMPTY(xs))
-    (ys)
-    (x => LIST_ELEMENT(HEAD(xs))(r(TAIL(xs))(ys))(x)))
-
-// implement LENGTH
-
-REVERSE = xs => (FIX(r => xs => a =>
-  IF_THEN_ELSE(IS_EMPTY(xs))
-    (a)
-    (x => (r(TAIL(xs))(LIST_ELEMENT(HEAD(xs))(a)))(x))))
-  (xs)(EMPTY_LIST)
-
-TAKE = FIX(r => n => xs =>
-  IF_THEN_ELSE(LESS_THAN_OR_EQUAL(n)(ZERO))
-    (EMPTY_LIST)
-    (IF_THEN_ELSE(IS_EMPTY(xs)))
-      (EMPTY_LIST)
-      (x => LIST_ELEMENT(HEAD(xs))(r(MINUS(n)(ONE))(TAIL(xs)))(x)))
-
-ZIP = FIX(r => xs => ys =>
-  IF_THEN_ELSE(IS_EMPTY(xs))
-    (EMPTY_LIST)
-    (IF_THEN_ELSE(IS_EMPTY(ys))
-      (EMPTY_LIST)
-      (x => LIST_ELEMENT(PAIR(HEAD(xs))(HEAD(ys)))(r(TAIL(xs))(TAIL(ys)))(x))))
-
-ZIP_WITH = FIX(r => f => xs => ys =>
-  IF_THEN_ELSE(IS_EMPTY(xs))
-    (EMPTY_LIST)
-    (IF_THEN_ELSE(IS_EMPTY(ys))
-      (EMPTY_LIST)
-      (x => LIST_ELEMENT(f(HEAD(xs))(HEAD(ys)))(r(f)(TAIL(xs))(TAIL(ys)))(x))))
-
-INSERT = FIX(r => n => xs =>
-  IF_THEN_ELSE(IS_EMPTY(xs))
-    (LIST_ELEMENT(n)(EMPTY_LIST))
-    (IF_THEN_ELSE(GREATER_THAN(n)(HEAD(xs)))
-      (x => LIST_ELEMENT(HEAD(xs))(r(n)(TAIL(xs)))(x))
-      (LIST_ELEMENT(n)(xs))))
-
-SORT = FOLD(INSERT)(EMPTY_LIST)
-
-// streams
-
-ZEROS = FIX(r => LIST_ELEMENT(ZERO)(r))
-
-REPEAT = x => FIX(r => LIST_ELEMENT(x)(r))
-
-// functional structures (list implementations)
-
-// monoid
-
-MEMPTY = EMPTY_LIST
-
-MAPPEND = APPEND
-
-// functor
-
-FMAP = MAP
-
-// applicative
-
-PURE = x => LIST_ELEMENT(x)(EMPTY_LIST)
-
-AP = FIX(r => fs => xs =>
-  IF_THEN_ELSE(IS_EMPTY(xs))
-    (EMPTY_LIST)
-    (IF_THEN_ELSE(IS_EMPTY(fs))(EMPTY_LIST)
-      (x => MAPPEND(MAP(HEAD(fs))(xs))(r(TAIL(fs))(xs))(x))))
-
-AP_ZIP_LIST = fs => xs =>
-  IF_THEN_ELSE(IS_EMPTY(xs))
-    (EMPTY_LIST)
-    (IF_THEN_ELSE(IS_EMPTY(fs))(EMPTY_LIST)
-      (ZIP_WITH(ID)(fs)(xs)))
-
-// monad
-
-RETURN = PURE
-
-BIND = FIX(r => xs => f =>
-  IF_THEN_ELSE(IS_EMPTY(xs))
-    (EMPTY_LIST)
-    (x => MAPPEND(f(HEAD(xs)))(r(TAIL(xs))(f))(x)))
-
-// factorial
-
-F = f => n => IS_ZERO(n)(ONE)(x => MULT(n)(f(PRED(n)))(x))
-
-FACT = FIX(F)
-
-FACT = FIX(r => n =>
-  IS_ZERO(n)
-    (ONE)
-    (x => MULT(n)(r(PRED(n)))(x)))
+// return to factorial
 
 AND_EQUALS_TWO = COMPOSE(AND)(EQUALS(TWO))
 
@@ -292,34 +379,240 @@ FACT_CHECK = ALL_TWOS(
   )(EMPTY_LIST)))))))))))))))
 )
 
-FACT_EXP = (f => (x => f(y => x(x)(y)))(x => f(y => x(x)(y))))(f => n => (n => n(x => x => y => y)(x => y => x))(n)(f => x => f(x))(x => (n => m => m((n => m => m(n => f => x => f(n(f)(x)))(n))(n))(f => x => x))(n)(f((n => n(p => z => z((n => f => x => f(n(f)(x)))(p(x => y => x)))(p(x => y => x)))(z => z(f => x => x)(f => x => x))(x => y => y))(n)))(x)))
+// other list functions
 
-/* How to implement recursive lambda functions in a strict language
+RANGE = FIX(r => m => n =>
+  IF_THEN_ELSE(LESS_THAN_OR_EQUAL(m)(n))
+    (x => LIST_ELEMENT(m)(r(SUCC(m))(n))(x))
+    (EMPTY_LIST))
 
-1. Write the function as you normally would without a fixpoint combinator:
+INDEX = FIX(r => xs => n =>
+  IF_THEN_ELSE(IS_ZERO(n))
+    (HEAD(xs))
+    (x => r(TAIL(xs))(PRED(n))(x)))
 
-FACT = n =>
-  IS_ZERO(n)
-    (ONE)
-    (MULT(n)(FACT(PRED(n))))
+PUSH = x => xs => FOLD(LIST_ELEMENT)(LIST_ELEMENT(x)(EMPTY_LIST))(xs)
 
-2. Wrap the whole thing in FIX, add a parameter to the front of the definition, and replace all recursive function calls with that parameter:
+APPEND = FIX(r => xs => ys =>
+  IF_THEN_ELSE(IS_EMPTY(xs))
+    (ys)
+    (x => LIST_ELEMENT(HEAD(xs))(r(TAIL(xs))(ys))(x)))
 
-FACT = FIX(r => n =>
-  IS_ZERO(n)
-    (ONE)
-    (MULT(n)(r(PRED(n)))))
+REVERSE = xs => (FIX(r => xs => a =>
+  IF_THEN_ELSE(IS_EMPTY(xs))
+    (a)
+    (x => (r(TAIL(xs))(LIST_ELEMENT(HEAD(xs))(a)))(x))))
+  (xs)(EMPTY_LIST)
 
-3. Wrap the recursive branch of your function in a dummy closure by adding a parameter to the front of that branch and applying the last function in that branch to the same parameter:
+TAKE = FIX(r => n => xs =>
+  IF_THEN_ELSE(LESS_THAN_OR_EQUAL(n)(ZERO))
+    (EMPTY_LIST)
+    (IF_THEN_ELSE(IS_EMPTY(xs)))
+      (EMPTY_LIST)
+      (x => LIST_ELEMENT(HEAD(xs))(r(MINUS(n)(ONE))(TAIL(xs)))(x)))
 
-FACT = FIX(r => n =>
-  IS_ZERO(n)
-    (ONE)
-    (x => MULT(n)(r(PRED(n)))(x)))
+ZIP = FIX(r => xs => ys =>
+  IF_THEN_ELSE(IS_EMPTY(xs))
+    (EMPTY_LIST)
+    (IF_THEN_ELSE(IS_EMPTY(ys))
+      (EMPTY_LIST)
+      (x => LIST_ELEMENT(PAIR(HEAD(xs))(HEAD(ys)))(r(TAIL(xs))(TAIL(ys)))(x))))
+
+ZIP_WITH = FIX(r => f => xs => ys =>
+  IF_THEN_ELSE(IS_EMPTY(xs))
+    (EMPTY_LIST)
+    (IF_THEN_ELSE(IS_EMPTY(ys))
+      (EMPTY_LIST)
+      (x => LIST_ELEMENT(f(HEAD(xs))(HEAD(ys)))(r(f)(TAIL(xs))(TAIL(ys)))(x))))
+
+/* example of zipping
+
+LIST = LIST_ELEMENT(ONE)(LIST_ELEMENT(TWO)(LIST_ELEMENT(THREE)(EMPTY_LIST)))
+
+toArray(ZIP(LIST)(LIST)).map(x => toPairInt(x)) // ~= [(1,1),(2,2),(3,3)]
+toArrayInt(ZIP_WITH(PLUS)(LIST)(LIST))          // =  [2,4,6]
 
 */
 
-// implement fibonacci
+INSERT = FIX(r => n => xs =>
+  IF_THEN_ELSE(IS_EMPTY(xs))
+    (LIST_ELEMENT(n)(EMPTY_LIST))
+    (IF_THEN_ELSE(GREATER_THAN(n)(HEAD(xs)))
+      (x => LIST_ELEMENT(HEAD(xs))(r(n)(TAIL(xs)))(x))
+      (LIST_ELEMENT(n)(xs))))
+
+SORT = FOLD(INSERT)(EMPTY_LIST)
+
+/*
+
+toArrayInt(SORT(REVERSE(LIST))) // = [1,2,3]
+
+*/
+
+/* implementation of TAKE from Haskell to JavaScript lambdas
+
+take                   :: Int -> [a] -> [a]
+take n _      | n <= 0 =  []
+take _ []              =  []
+take n (x:xs)          =  x : take (n-1) xs
+
+TAKE = n => xs =>
+  IF_THEN_ELSE(LESS_THAN_OR_EQUAL(n)(ZERO))(EMPTY_LIST)
+  (IF_THEN_ELSE(IS_EMPTY(xs)))(EMPTY_LIST)
+  (LIST_ELEMENT(HEAD(xs))(TAKE(MINUS(n)(ONE))(TAIL(xs))))
+
+TAKE = FIX(r => n => xs =>
+  IF_THEN_ELSE(LESS_THAN_OR_EQUAL(n)(ZERO))
+    (EMPTY_LIST)
+    (IF_THEN_ELSE(IS_EMPTY(xs)))
+      (EMPTY_LIST)
+      (x => LIST_ELEMENT(HEAD(xs))(r(MINUS(n)(ONE))(TAIL(xs)))(x)))
+
+*/
+
+// implement DROP
+
+/*
+
+drop                   :: Int -> [a] -> [a]
+drop n xs     | n <= 0 =  xs
+drop _ []              =  []
+drop n (_:xs)          =  drop (n-1) xs
+
+*/
+
+// implement LENGTH
+
+// streams
+
+ZEROS = FIX(r => LIST_ELEMENT(ZERO)(r))
+
+REPEAT = x => FIX(r => LIST_ELEMENT(x)(r))
+
+/* example of streams
+
+toArrayInt(TAKE(TEN)(ZEROS))          // = [0,0,0,0,0,0,0,0,0,0]
+toArrayInt(TAKE(TEN)(REPEAT(NINE)))   // = [9,9,9,9,9,9,9,9,9]
+toInt(LENGTH(TAKE(TEN)(REPEAT(TEN)))) // error!
+
+*/
+
+// universal properties of fold
+
+SUM = FIX(r => xs =>
+  IF_THEN_ELSE(IS_EMPTY(xs))
+    (ZERO)
+    (x => PLUS(HEAD(xs))(r(TAIL(xs)))(x)))
+
+SUM_FOLD = FOLD(PLUS)(ZERO)
+
+PRODUCT_FOLD = FOLD(MULT)(ONE) // here there be monoids!
+
+/*
+
+LIST = RANGE(ONE)(TEN)
+toInt(SUM_FOLD(LIST)) === toInt(SUM(LIST))
+
+*/
+
+LENGTH_FOLD = FOLD(x => n => PLUS(ONE)(n))(ZERO)
+
+REVERSE_FOLD = FOLD(x => xs => APPEND(xs)(LIST_ELEMENT(x)(EMPTY_LIST)))(EMPTY_LIST)
+
+FOLDL = f => z => xs => FOLD(x => g => (y => g(f(y)(x))))(ID)(xs)(z)
+
+REVERSE_FOLDL = FOLDL(xs => x => LIST_ELEMENT(x)(xs))(EMPTY_LIST) // more efficient
+
+// implement AND_FOLD and OR_FOLD
+
+// binary numbers using lists
+
+B_ZERO = LIST_ELEMENT(ZERO)
+
+B_ONE = LIST_ELEMENT(ONE)
+
+BINARY_ZERO = B_ZERO(EMPTY_LIST)
+
+BINARY_ONE = B_ONE(EMPTY_LIST)
+
+BINARY_TWO = B_ONE(B_ZERO)(EMPTY_LIST)
+
+BINARY_THREE = B_ONE(B_ONE)(EMPTY_LIST)
+
+// trees
+
+EMPTY_TREE = EMPTY_LIST
+
+NODE = v => l => r => LIST_ELEMENT(v)(LIST_ELEMENT(l)(LIST_ELEMENT(r)(EMPTY_TREE)))
+
+VALUE = t => HEAD(t)
+
+LEFT = t => HEAD(TAIL(t))
+
+RIGHT = t => HEAD(TAIL(TAIL(t)))
+
+// functional structures (list implementations)
+
+// monoid
+
+MEMPTY = EMPTY_LIST
+
+MAPPEND = APPEND
+
+// functor
+
+FMAP = MAP
+
+// applicative
+
+PURE = x => LIST_ELEMENT(x)(EMPTY_LIST)
+
+AP = FIX(r => fs => xs =>
+  IF_THEN_ELSE(IS_EMPTY(xs))
+    (EMPTY_LIST)
+    (IF_THEN_ELSE(IS_EMPTY(fs))(EMPTY_LIST)
+      (x => MAPPEND(MAP(HEAD(fs))(xs))(r(TAIL(fs))(xs))(x))))
+
+AP_ZIP_LIST = fs => xs =>
+  IF_THEN_ELSE(IS_EMPTY(xs))
+    (EMPTY_LIST)
+    (IF_THEN_ELSE(IS_EMPTY(fs))(EMPTY_LIST)
+      (ZIP_WITH(ID)(fs)(xs)))
+
+/*
+
+LIST = RANGE(ONE)(TEN)
+
+FUNC_LIST = MAP(PLUS)(LIST)
+
+AP_LIST = AP(FUNC_LIST)(LIST)
+
+ZIP_LIST = AP_ZIP_LIST(FUNC_LIST)(REVERSE(LIST))
+
+*/
+
+// monad
+
+RETURN = PURE
+
+BIND = FIX(r => xs => f =>
+  IF_THEN_ELSE(IS_EMPTY(xs))
+    (EMPTY_LIST)
+    (x => MAPPEND(f(HEAD(xs)))(r(TAIL(xs))(f))(x)))
+
+/*
+
+BIND_PLUS = x => RETURN(PLUS(x)(ONE))
+
+BIND_SQUARE = x => RETURN(EXP(x)(TWO))
+
+BIND_CUBE = x => RETURN(EXP(x)(THREE))
+
+BIND_LIST = BIND(BIND(LIST)(BIND_SQUARE))(BIND_CUBE)
+
+BIND_ADDS = BIND(BIND(BIND(BIND(BIND(LIST)(BIND_PLUS))(BIND_PLUS))(BIND_PLUS))(BIND_PLUS))(BIND_PLUS)
+
+*/
 
 // utility functions
 
@@ -351,7 +644,9 @@ toString = str => toArrayInt(str).map(n => String.fromCharCode(n)).join("")
 
 fromString = str => str.length === 0 ? EMPTY_LIST : LIST_ELEMENT(fromInt(str.charCodeAt(str[0])))(fromString(str.substr(1)))
 
-toFizzBuzz = fb => toArray(fb).map(x => toString(x) === "" ? toInt(x) : toString(x))
+toTree = t => toBool(IS_EMPTY(t)) ? [] : [toInt(VALUE(t)), toTree(LEFT(t)), toTree(RIGHT(t))]
+
+printTree = t => t.length === 0 ? "[]" : `[${t[0]}, ${printTree(t[1])}, ${printTree(t[2])}]`
 
 toLambda = x => {
   if (Number.isInteger(x)) return fromInt(x)
@@ -365,6 +660,7 @@ toLambda = x => {
 
 p = PAIR(ONE)(TWO)
 l = RANGE(ONE)(THREE)
+t = NODE(TWO)(NODE(ONE)(EMPTY_TREE)(EMPTY_TREE))(NODE(THREE)(EMPTY_TREE)(EMPTY_TREE))
 
 tests = {
   id: ID(1) === 1,
@@ -404,6 +700,7 @@ tests = {
   tail: toArrayInt(TAIL(l)).every((e,i) => e === [2,3][i]),
   fold: toInt(FOLD(PLUS)(ZERO)(l)) === 6,
   map: toArrayInt(MAP(PLUS(ONE))(l)).every((e,i) => e === [2,3,4][i]),
+  filter: toArrayInt(FILTER(GREATER_THAN(THREE))(l)).every((e,i) => e === [1,2][i]),
   range: toArrayInt(l).every((e,i) => e === [1,2,3][i]),
   index: toInt(INDEX(l)(ZERO)) === 1,
   push: toArrayInt(PUSH(FOUR)(l)).every((e,i) => e === [1,2,3,4][i]),
@@ -416,6 +713,17 @@ tests = {
   sort: toArrayInt(SORT(REVERSE(l))).every((e,i) => e === toArrayInt(l)[i]),
   zeros: toArrayInt(TAKE(THREE)(ZEROS)).every((e,i) => e === [0,0,0][i]),
   repeat: toArrayInt(TAKE(THREE)(REPEAT(ONE))).every((e,i) => e === [1,1,1][i]),
+  sum: toInt(SUM(l)) === 6,
+  sumFold: toInt(SUM_FOLD(l)) === 6,
+  productFold: toInt(PRODUCT_FOLD(l)) === 6,
+  lengthFold: toInt(LENGTH_FOLD(l)) === 3,
+  reverseFold: toArrayInt(REVERSE_FOLD(l)).every((e,i) => e === [3,2,1][i]),
+  foldl: toInt(FOLDL(PLUS)(ZERO)(l)) === 6,
+  reverseFoldl: toArrayInt(REVERSE_FOLDL(l)).every((e,i) => e === [3,2,1][i]),
+  tree: printTree(toTree(t)) === "[2, [1, [], []], [3, [], []]]",
+  value: toInt(VALUE(t)) === 2,
+  left: toInt(VALUE(LEFT(t))) === 1,
+  right: toInt(VALUE(RIGHT(t))) === 3,
   pure: toArrayInt(PURE(ONE))[0] === 1,
   ap: toArrayInt(AP(MAP(PLUS)(l))(l)).every((e,i) => e === [2,3,4,3,4,5,4,5,6][i]),
   apZipList: toArrayInt(AP_ZIP_LIST(MAP(PLUS)(l))(REVERSE(l))).every((e,i) => e === [4,4,4][i]),
@@ -426,4 +734,7 @@ tests = {
 }
 
 allTests = () => Object.values(tests).reduce((x, y) => x && y)
-console.log(allTests() ? "All tests passed." : "Tests failed.")
+
+failedTests = () => Object.getOwnPropertyNames(tests).filter((e,i) => !Object.values(tests)[i])
+
+console.log(allTests() ? "All tests passed." : `Failed tests: ${failedTests().join(", ")}`)
