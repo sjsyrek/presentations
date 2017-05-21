@@ -558,6 +558,20 @@ LEFT = t => HEAD(TAIL(t))
 
 RIGHT = t => HEAD(TAIL(TAIL(t)))
 
+/*
+
+TREE = NODE(TWO)(NODE(ONE)(EMPTY_TREE)(EMPTY_TREE))(NODE(THREE)(EMPTY_TREE)(EMPTY_TREE))
+
+toInt(VALUE(TREE))        // = 2
+
+toInt(VALUE(LEFT(TREE)))  // = 1
+
+toInt(VALUE(RIGHT(TREE))) // = 3
+
+printTree(toTreeInt(TREE)) // = [2, [1, [], []], [3, [], []]]
+
+*/
+
 // functional structures (list implementations)
 
 // monoid
@@ -595,6 +609,10 @@ FUNC_LIST = MAP(PLUS)(LIST)
 AP_LIST = AP(FUNC_LIST)(LIST)
 
 ZIP_LIST = AP_ZIP_LIST(FUNC_LIST)(REVERSE(LIST))
+
+toArrayInt(AP_LIST) // = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+
+toArrayInt(ZIP_LIST) // = [11, 11, 11, 11, 11, 11, 11, 11, 11, 11]
 
 */
 
@@ -655,7 +673,7 @@ toString = str => toArrayInt(str).map(n => String.fromCharCode(n)).join("")
 
 fromString = str => str.length === 0 ? EMPTY_LIST : LIST_ELEMENT(fromInt(str.charCodeAt(str[0])))(fromString(str.substr(1)))
 
-toTree = t => toBool(IS_EMPTY(t)) ? [] : [toInt(VALUE(t)), toTree(LEFT(t)), toTree(RIGHT(t))]
+toTreeInt = t => toBool(IS_EMPTY(t)) ? [] : [toInt(VALUE(t)), toTreeInt(LEFT(t)), toTreeInt(RIGHT(t))]
 
 printTree = t => t.length === 0 ? "[]" : `[${t[0]}, ${printTree(t[1])}, ${printTree(t[2])}]`
 
@@ -731,7 +749,7 @@ tests = {
   reverseFold: toArrayInt(REVERSE_FOLD(l)).every((e,i) => e === [3,2,1][i]),
   foldl: toInt(FOLDL(PLUS)(ZERO)(l)) === 6,
   reverseFoldl: toArrayInt(REVERSE_FOLDL(l)).every((e,i) => e === [3,2,1][i]),
-  tree: printTree(toTree(t)) === "[2, [1, [], []], [3, [], []]]",
+  tree: printTree(toTreeInt(t)) === "[2, [1, [], []], [3, [], []]]",
   value: toInt(VALUE(t)) === 2,
   left: toInt(VALUE(LEFT(t))) === 1,
   right: toInt(VALUE(RIGHT(t))) === 3,
