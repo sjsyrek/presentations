@@ -210,8 +210,9 @@ DIV = FIX(r => n => m =>
     (x => SUCC(r(MINUS(n)(m))(m))(x))
     (ZERO))
 
-// implement a function that, given a number n, returns true if n is even and false otherwise
-// (HINT: write helper functions for EVEN and ODD
+// implement a function EVEN that, given a number n, returns true if n is even and false otherwise
+
+// implement ODD in terms of EVEN, using composition
 
 // factorial
 
@@ -487,7 +488,7 @@ drop n (_:xs)          =  drop (n-1) xs
 
 */
 
-// implement LENGTH
+// implement LENGTH (HINT: use an implicit helper function)
 
 // streams
 
@@ -619,6 +620,8 @@ BIND_LIST = BIND(BIND(LIST)(BIND_SQUARE))(BIND_CUBE)
 BIND_ADDS = BIND(BIND(BIND(BIND(BIND(LIST)(BIND_PLUS))(BIND_PLUS))(BIND_PLUS))(BIND_PLUS))(BIND_PLUS)
 
 */
+
+// implement any function of your choice
 
 // utility functions
 
