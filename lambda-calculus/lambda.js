@@ -562,11 +562,11 @@ RIGHT = t => HEAD(TAIL(TAIL(t)))
 
 TREE = NODE(TWO)(NODE(ONE)(EMPTY_TREE)(EMPTY_TREE))(NODE(THREE)(EMPTY_TREE)(EMPTY_TREE))
 
-toInt(VALUE(TREE))        // = 2
+toInt(VALUE(TREE))         // = 2
 
-toInt(VALUE(LEFT(TREE)))  // = 1
+toInt(VALUE(LEFT(TREE)))   // = 1
 
-toInt(VALUE(RIGHT(TREE))) // = 3
+toInt(VALUE(RIGHT(TREE)))  // = 3
 
 printTree(toTreeInt(TREE)) // = [2, [1, [], []], [3, [], []]]
 
