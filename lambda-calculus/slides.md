@@ -12,7 +12,7 @@ autoscale: true
 ---
 
 # [fit] λ calculus<sup>*</sup>
-## <sup>*</sup>for those who can't be bothered to learn it
+## <sup>*</sup>for people who can't be bothered to learn it
 
 ^ Note: This presentation is designed to be viewed with [http://www.decksetapp.com/](http://www.decksetapp.com/).
 
