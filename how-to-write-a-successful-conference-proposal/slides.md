@@ -110,6 +110,10 @@ autoscale: true
 
 ---
 
+# Don't be afraid to ask for help
+
+---
+
 # Be confident
 
 ---
