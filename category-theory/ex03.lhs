@@ -1,3 +1,5 @@
+Natural transformations
+
 \begin{code}
 
 module Ex03 where

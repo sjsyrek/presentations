@@ -1,3 +1,5 @@
+Answers to exercises
+
 \begin{code}
 
 import Ex01
@@ -13,13 +15,6 @@ whatDay Martini = Friday
 whatDay Burger  = Saturday
 whatDay Pasta   = Sunday
 
-reverseBool :: Bool -> (Bool -> Bool -> Bool)
-reverseBool True  = (&&)
-reverseBool False = (||)
-
-and' = reverseBool True
-or'  = reverseBool False
-
 \end{code}
 
 Identity proofs
@@ -30,6 +25,13 @@ id . whatDay = whatDay
 Isomorphisms
 
 \begin{code}
+
+reverseBool :: Bool -> (Bool -> Bool -> Bool)
+reverseBool True  = (&&)
+reverseBool False = (||)
+
+and' = reverseBool True
+or'  = reverseBool False
 
 curry3 :: ((a, b, c) -> d) -> a -> b -> c -> d
 curry3 f x y z = f (x, y, z)
