@@ -240,6 +240,24 @@ fmap f . component == component . fmap f
 
 ---
 
+# Categories in Haskell
+
+```
+class Category arrow where
+  identity :: arrow a a
+  compose  :: arrow b c -> arrow a b -> arrow a c
+
+instance Category (->) where
+  identity    x = x
+  compose f g x = f (g x)
+
+class Monoid a where
+  mempty  :: a
+  mappend :: a -> a -> a
+```
+
+---
+
 # Further reading
 
 * Awodey, Steve. _Category Theory_. Oxford: Oxford University Press, 2010.
