@@ -2,6 +2,8 @@ Functors
 
 \begin{code}
 
+module Ex02 where
+
 import Ex01
 
 lunchMaybe :: Day -> Maybe Lunch
@@ -22,9 +24,6 @@ maybeLunchToday (Just day) = Just $ whatLunch day
 
 mapLunch1 = fmap maybeLunch lunchMaybe
 mapLunch2 = maybeLunch . lunchMaybe
-
--- fmap (maybeLunch . lunchMaybe) (Just Monday) ==
--- (fmap maybeLunch) . (fmap lunchMaybe) $ Just Monday
 
 type NT f g = f Lunch -> g Lunch
 
