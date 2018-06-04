@@ -109,6 +109,10 @@ autoscale: true
 
 ---
 
+# What is category theory?
+
+---
+
 # What is a function?
 
 ---
@@ -258,6 +262,10 @@ class Monoid a where
 
 ---
 
+# What is category theory?
+
+---
+
 # Further reading
 
 * Awodey, Steve. _Category Theory_. Oxford: Oxford University Press, 2010.
@@ -273,3 +281,5 @@ class Monoid a where
 
 * [TheCatsters](https://www.youtube.com/user/TheCatsters)
 * [Category Theory for Programmers](https://www.youtube.com/user/DrBartosz/videos)
+
+[`https://github.com/sjsyrek/presentations/tree/master/category-theory`](https://github.com/sjsyrek/presentations/tree/master/category-theory)
